@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { Header } from "@/components/layout/Header";
 import { StatCards } from "@/components/dashboard/StatCards";
 import { MonthlyChart } from "@/components/dashboard/MonthlyChart";

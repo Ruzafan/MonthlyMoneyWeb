@@ -3,7 +3,6 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { MobileNav } from "@/components/layout/MobileNav";
-import { ensureSeeded } from "@/lib/seed";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -20,9 +19,7 @@ export const metadata: Metadata = {
   description: "Controla tus gastos, ingresos y ahorro",
 };
 
-export default async function RootLayout({ children }: LayoutProps<"/">) {
-  await ensureSeeded();
-
+export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="es"

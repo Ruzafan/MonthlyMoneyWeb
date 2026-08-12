@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { Header } from "@/components/layout/Header";
 import { CategoryList } from "@/components/categories/CategoryList";
 import { getCategories } from "@/lib/queries";

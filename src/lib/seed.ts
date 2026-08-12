@@ -1,5 +1,4 @@
 import "server-only";
-import { connectDB } from "@/lib/db";
 import { Category } from "@/lib/models/Category";
 import { Transaction } from "@/lib/models/Transaction";
 
@@ -19,7 +18,6 @@ const DEFAULT_CATEGORIES = [
 ] as const;
 
 export async function ensureSeeded() {
-  await connectDB();
   const count = await Category.countDocuments({ userId: USER_ID });
   if (count > 0) return;
 

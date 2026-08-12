@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { Header } from "@/components/layout/Header";
 import { Card } from "@/components/ui/Card";
 import { TransactionFilters } from "@/components/transactions/TransactionFilters";
