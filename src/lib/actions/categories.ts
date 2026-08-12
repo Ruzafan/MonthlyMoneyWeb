@@ -1,12 +1,10 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { connectDB } from "@/lib/db";
 import { Category } from "@/lib/models/Category";
 import { Transaction } from "@/lib/models/Transaction";
 import { categorySchema } from "@/lib/validation";
-
-const USER_ID = "default-user";
+import { requireUserId } from "@/lib/session";
 
 export type ActionResult<T = undefined> =
   | { success: true; data: T }
@@ -17,8 +15,8 @@ export async function createCategory(input: unknown): Promise<ActionResult> {
   if (!parsed.success) {
     return { success: false, error: parsed.error.issues[0]?.message ?? "Datos inválidos" };
   }
-  await connectDB();
-  await Category.create({ ...parsed.data, userId: USER_ID });
+  const userId = await requireUserId();
+  await Category.create({ ...parsed.data, userId });
   revalidatePath("/categorias");
   revalidatePath("/movimientos");
   revalidatePath("/");
@@ -30,8 +28,8 @@ export async function updateCategory(id: string, input: unknown): Promise<Action
   if (!parsed.success) {
     return { success: false, error: parsed.error.issues[0]?.message ?? "Datos inválidos" };
   }
-  await connectDB();
-  await Category.findOneAndUpdate({ _id: id, userId: USER_ID }, parsed.data);
+  const userId = await requireUserId();
+  await Category.findOneAndUpdate({ _id: id, userId }, parsed.data);
   revalidatePath("/categorias");
   revalidatePath("/movimientos");
   revalidatePath("/");
@@ -39,12 +37,12 @@ export async function updateCategory(id: string, input: unknown): Promise<Action
 }
 
 export async function deleteCategory(id: string): Promise<ActionResult> {
-  await connectDB();
-  const inUse = await Transaction.exists({ categoryId: id, userId: USER_ID });
+  const userId = await requireUserId();
+  const inUse = await Transaction.exists({ categoryId: id, userId });
   if (inUse) {
     return { success: false, error: "No se puede eliminar: hay movimientos con esta categoría" };
   }
-  await Category.deleteOne({ _id: id, userId: USER_ID });
+  await Category.deleteOne({ _id: id, userId });
   revalidatePath("/categorias");
   return { success: true, data: undefined };
 }

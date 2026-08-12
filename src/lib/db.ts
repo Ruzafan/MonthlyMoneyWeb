@@ -23,13 +23,7 @@ async function resolveUri(): Promise<string> {
 
 export async function connectDB() {
   if (!global._mongooseConn) {
-    global._mongooseConn = resolveUri()
-      .then((uri) => mongoose.connect(uri, { dbName: "financeweb" }))
-      .then(async (conn) => {
-        const { ensureSeeded } = await import("./seed");
-        await ensureSeeded();
-        return conn;
-      });
+    global._mongooseConn = resolveUri().then((uri) => mongoose.connect(uri, { dbName: "financeweb" }));
   }
   return global._mongooseConn;
 }

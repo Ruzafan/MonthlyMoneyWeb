@@ -8,7 +8,7 @@ const transactionSchema = new Schema(
     categoryId: { type: Schema.Types.ObjectId, ref: "Category", required: true },
     tags: { type: [String], default: [] },
     description: { type: String, trim: true },
-    userId: { type: String, required: true, default: "default-user", index: true },
+    userId: { type: String, required: true, index: true },
   },
   { timestamps: true }
 );

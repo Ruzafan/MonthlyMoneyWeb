@@ -1,9 +1,7 @@
 import "server-only";
-import { connectDB } from "@/lib/db";
 import { Category } from "@/lib/models/Category";
 import { Transaction } from "@/lib/models/Transaction";
-
-const USER_ID = "default-user";
+import { requireUserId } from "@/lib/session";
 
 export type PlainCategory = {
   _id: string;
@@ -24,8 +22,8 @@ export type PlainTransaction = {
 };
 
 export async function getCategories(): Promise<PlainCategory[]> {
-  await connectDB();
-  const docs = await Category.find({ userId: USER_ID }).sort({ name: 1 }).lean();
+  const userId = await requireUserId();
+  const docs = await Category.find({ userId }).sort({ name: 1 }).lean();
   return docs.map((d) => ({
     _id: String(d._id),
     name: d.name,
@@ -44,8 +42,8 @@ export type TransactionFilters = {
 };
 
 export async function getTransactions(filters: TransactionFilters = {}): Promise<PlainTransaction[]> {
-  await connectDB();
-  const query: Record<string, unknown> = { userId: USER_ID };
+  const userId = await requireUserId();
+  const query: Record<string, unknown> = { userId };
   if (filters.from || filters.to) {
     query.date = {
       ...(filters.from ? { $gte: new Date(filters.from) } : {}),
@@ -69,7 +67,7 @@ export async function getTransactions(filters: TransactionFilters = {}): Promise
 }
 
 export async function getAllTags(): Promise<string[]> {
-  await connectDB();
-  const tags = await Transaction.distinct("tags", { userId: USER_ID });
+  const userId = await requireUserId();
+  const tags = await Transaction.distinct("tags", { userId });
   return (tags as string[]).sort();
 }

@@ -2,7 +2,7 @@ import "server-only";
 import { Category } from "@/lib/models/Category";
 import { Transaction } from "@/lib/models/Transaction";
 
-const USER_ID = "default-user";
+const LEGACY_USER_ID = "default-user";
 
 const DEFAULT_CATEGORIES = [
   { name: "Nómina", type: "income", color: "#22c55e" },
@@ -17,42 +17,21 @@ const DEFAULT_CATEGORIES = [
   { name: "Otros gastos", type: "expense", color: "#94a3b8" },
 ] as const;
 
-export async function ensureSeeded() {
-  const count = await Category.countDocuments({ userId: USER_ID });
-  if (count > 0) return;
+/**
+ * Ensures a signed-in user has data to work with. First real user to sign in
+ * claims any pre-auth demo data (userId "default-user"); everyone after that
+ * starts with a fresh set of default categories.
+ */
+export async function ensureUserInitialized(userId: string) {
+  const hasData = await Category.exists({ userId });
+  if (hasData) return;
 
-  const categories = await Category.insertMany(
-    DEFAULT_CATEGORIES.map((c) => ({ ...c, userId: USER_ID }))
-  );
-
-  if (process.env.NODE_ENV === "production" && process.env.MONGODB_URI) {
-    return; // don't seed fake demo transactions in a real production DB
+  const legacyData = await Category.exists({ userId: LEGACY_USER_ID });
+  if (legacyData) {
+    await Category.updateMany({ userId: LEGACY_USER_ID }, { userId });
+    await Transaction.updateMany({ userId: LEGACY_USER_ID }, { userId });
+    return;
   }
 
-  const byName = Object.fromEntries(categories.map((c) => [c.name, c._id]));
-  const today = new Date();
-  const demoTx: { type: "expense" | "income"; amount: number; date: Date; categoryId: unknown; tags: string[]; description?: string }[] = [];
-
-  for (let m = 2; m >= 0; m--) {
-    const monthDate = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth() - m, 1));
-    const y = monthDate.getUTCFullYear();
-    const mo = monthDate.getUTCMonth();
-    const d = (day: number) => new Date(Date.UTC(y, mo, day));
-
-    demoTx.push({ type: "income", amount: 2100 + m * 20, date: d(1), categoryId: byName["Nómina"], tags: [] });
-    if (m !== 1) {
-      demoTx.push({ type: "income", amount: 250, date: d(12), categoryId: byName["Freelance"], tags: ["extra"] });
-    }
-    demoTx.push({ type: "expense", amount: 850, date: d(3), categoryId: byName["Vivienda"], tags: ["alquiler"] });
-    demoTx.push({ type: "expense", amount: 40, date: d(3), categoryId: byName["Vivienda"], tags: ["suministros"] });
-    demoTx.push({ type: "expense", amount: 220 + m * 10, date: d(8), categoryId: byName["Alimentación"], tags: ["supermercado"] });
-    demoTx.push({ type: "expense", amount: 65, date: d(15), categoryId: byName["Alimentación"], tags: ["restaurante"] });
-    demoTx.push({ type: "expense", amount: 45, date: d(5), categoryId: byName["Transporte"], tags: ["gasolina"] });
-    demoTx.push({ type: "expense", amount: 55, date: d(20), categoryId: byName["Ocio"], tags: ["cine", "amigos"] });
-    demoTx.push({ type: "expense", amount: 30, date: d(22), categoryId: byName["Salud"], tags: [] });
-    demoTx.push({ type: "expense", amount: 15.99, date: d(1), categoryId: byName["Suscripciones"], tags: ["streaming"] });
-    demoTx.push({ type: "expense", amount: 9.99, date: d(1), categoryId: byName["Suscripciones"], tags: ["música"] });
-  }
-
-  await Transaction.insertMany(demoTx.map((t) => ({ ...t, userId: USER_ID })));
+  await Category.insertMany(DEFAULT_CATEGORIES.map((c) => ({ ...c, userId })));
 }

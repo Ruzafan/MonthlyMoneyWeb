@@ -6,7 +6,7 @@ const categorySchema = new Schema(
     type: { type: String, enum: ["expense", "income"], required: true },
     color: { type: String, required: true },
     budgetLimit: { type: Number, min: 0 },
-    userId: { type: String, required: true, default: "default-user", index: true },
+    userId: { type: String, required: true, index: true },
   },
   { timestamps: true }
 );
