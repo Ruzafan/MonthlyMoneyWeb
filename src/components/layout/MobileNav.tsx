@@ -3,12 +3,13 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import clsx from "clsx";
-import { LayoutDashboard, List, Tags } from "lucide-react";
+import { LayoutDashboard, List, Tags, User } from "lucide-react";
 
 const links = [
   { href: "/", label: "Resumen", icon: LayoutDashboard },
   { href: "/movimientos", label: "Movimientos", icon: List },
   { href: "/categorias", label: "Categorías", icon: Tags },
+  { href: "/perfil", label: "Perfil", icon: User },
 ];
 
 export function MobileNav() {

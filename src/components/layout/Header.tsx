@@ -1,5 +1,6 @@
 import Image from "next/image";
-import { auth, signOut } from "@/auth";
+import Link from "next/link";
+import { auth } from "@/auth";
 import { NewTransactionButton } from "@/components/transactions/NewTransactionButton";
 import type { PlainCategory } from "@/lib/queries";
 
@@ -15,24 +16,17 @@ export async function Header({ title, subtitle, categories }: { title: string; s
       <div className="flex items-center gap-3">
         <NewTransactionButton categories={categories} />
         {session?.user && (
-          <form
-            action={async () => {
-              "use server";
-              await signOut({ redirectTo: "/login" });
-            }}
+          <Link
+            href="/perfil"
+            title={session.user.email ?? session.user.name ?? "Perfil"}
+            className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border border-border transition-opacity hover:opacity-80"
           >
-            <button
-              type="submit"
-              title={`Cerrar sesión (${session.user.email ?? session.user.name})`}
-              className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border border-border transition-opacity hover:opacity-80"
-            >
-              {session.user.image ? (
-                <Image src={session.user.image} alt="" width={40} height={40} className="h-full w-full object-cover" />
-              ) : (
-                <span className="text-sm font-medium">{session.user.name?.[0] ?? "?"}</span>
-              )}
-            </button>
-          </form>
+            {session.user.image ? (
+              <Image src={session.user.image} alt="" width={40} height={40} className="h-full w-full object-cover" />
+            ) : (
+              <span className="text-sm font-medium">{session.user.name?.[0] ?? "?"}</span>
+            )}
+          </Link>
         )}
       </div>
     </header>

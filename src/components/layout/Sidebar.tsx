@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import clsx from "clsx";
-import { LayoutDashboard, List, Tags, Wallet } from "lucide-react";
+import { LayoutDashboard, List, Tags, User, Wallet } from "lucide-react";
 
 const links = [
   { href: "/", label: "Resumen", icon: LayoutDashboard },
@@ -23,7 +23,7 @@ export function Sidebar() {
         <span className="text-lg font-semibold tracking-tight">Finanzas</span>
       </div>
 
-      <nav className="flex flex-col gap-1">
+      <nav className="flex flex-1 flex-col gap-1">
         {links.map(({ href, label, icon: Icon }) => {
           const active = pathname === href;
           return (
@@ -43,6 +43,17 @@ export function Sidebar() {
           );
         })}
       </nav>
+
+      <Link
+        href="/perfil"
+        className={clsx(
+          "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+          pathname === "/perfil" ? "bg-accent/10 text-accent" : "text-muted hover:bg-surface-muted hover:text-foreground"
+        )}
+      >
+        <User size={18} />
+        Perfil
+      </Link>
     </aside>
   );
 }
