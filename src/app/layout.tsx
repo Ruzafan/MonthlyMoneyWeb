@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { auth } from "@/auth";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { MobileNav } from "@/components/layout/MobileNav";
 
@@ -19,7 +20,10 @@ export const metadata: Metadata = {
   description: "Controla tus gastos, ingresos y ahorro",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  const session = await auth();
+  const signedIn = Boolean(session?.user);
+
   return (
     <html
       lang="es"
@@ -27,12 +31,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="min-h-full">
         <div className="flex min-h-screen">
-          <Sidebar />
-          <div className="flex min-h-screen flex-1 flex-col pb-16 md:pb-0">
+          {signedIn && <Sidebar />}
+          <div className={`flex min-h-screen flex-1 flex-col ${signedIn ? "pb-16 md:pb-0" : ""}`}>
             {children}
           </div>
         </div>
-        <MobileNav />
+        {signedIn && <MobileNav />}
       </body>
     </html>
   );
