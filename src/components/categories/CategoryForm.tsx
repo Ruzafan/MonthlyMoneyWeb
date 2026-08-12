@@ -104,7 +104,7 @@ export function CategoryForm({ category, onDone }: { category?: PlainCategory; o
       {type === "expense" && (
         <div>
           <Label htmlFor="budgetLimit">Presupuesto mensual (€, opcional)</Label>
-          <Input id="budgetLimit" type="number" step="0.01" placeholder="Sin límite" {...register("budgetLimit")} />
+          <Input id="budgetLimit" type="number" step="0.01" min="0" placeholder="Sin límite" {...register("budgetLimit")} />
         </div>
       )}
 

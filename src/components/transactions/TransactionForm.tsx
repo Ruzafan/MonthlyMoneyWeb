@@ -115,7 +115,7 @@ export function TransactionForm({
       <div className="grid grid-cols-2 gap-4">
         <div>
           <Label htmlFor="amount">Importe (€)</Label>
-          <Input id="amount" type="number" step="0.01" inputMode="decimal" placeholder="0.00" {...register("amount")} />
+          <Input id="amount" type="number" step="0.01" min="0" inputMode="decimal" placeholder="0.00" {...register("amount")} />
           <FieldError>{errors.amount?.message}</FieldError>
         </div>
         <div>
