@@ -7,6 +7,7 @@ import { z } from "zod";
 import { ChevronDown, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input, Label, FieldError, Textarea } from "@/components/ui/Input";
+import { TagInput } from "@/components/transactions/TagInput";
 import { createTransaction, updateTransaction } from "@/lib/actions/transactions";
 import type { PlainCategory, PlainTransaction } from "@/lib/queries";
 import clsx from "clsx";
@@ -16,7 +17,7 @@ const formSchema = z.object({
   amount: z.coerce.number().positive("Introduce un importe válido"),
   date: z.string().min(1, "Selecciona una fecha"),
   categoryId: z.string().min(1, "Selecciona una categoría"),
-  tags: z.string().optional(),
+  tags: z.array(z.string()).default([]),
   description: z.string().optional(),
 });
 type FormValues = z.input<typeof formSchema>;
@@ -28,10 +29,12 @@ function todayISO() {
 
 export function TransactionForm({
   categories,
+  existingTags,
   transaction,
   onDone,
 }: {
   categories: PlainCategory[];
+  existingTags: string[];
   transaction?: PlainTransaction;
   onDone: () => void;
 }) {
@@ -52,10 +55,10 @@ export function TransactionForm({
           amount: transaction.amount,
           date: transaction.date.slice(0, 10),
           categoryId: transaction.categoryId,
-          tags: transaction.tags.join(", "),
+          tags: transaction.tags,
           description: transaction.description ?? "",
         }
-      : { type: "expense", amount: undefined, date: todayISO(), categoryId: "", tags: "", description: "" },
+      : { type: "expense", amount: undefined, date: todayISO(), categoryId: "", tags: [], description: "" },
   });
 
   const type = watch("type");
@@ -68,9 +71,7 @@ export function TransactionForm({
       amount: values.amount,
       date: values.date,
       categoryId: values.categoryId,
-      tags: values.tags
-        ? values.tags.split(",").map((t) => t.trim()).filter(Boolean)
-        : [],
+      tags: values.tags,
       description: values.description || undefined,
     };
     const result = transaction
@@ -154,8 +155,14 @@ export function TransactionForm({
       {showDetails && (
         <div className="flex flex-col gap-4 border-t border-border pt-4">
           <div>
-            <Label htmlFor="tags">Tags (separados por comas)</Label>
-            <Input id="tags" placeholder="viaje, trabajo" {...register("tags")} />
+            <Label htmlFor="tags">Tags</Label>
+            <Controller
+              control={control}
+              name="tags"
+              render={({ field }) => (
+                <TagInput value={field.value ?? []} onChange={field.onChange} suggestions={existingTags} />
+              )}
+            />
           </div>
           <div>
             <Label htmlFor="description">Descripción</Label>

@@ -78,7 +78,7 @@ export default async function MovimientosPage({
                           {currency.format(tx.amount)}
                         </td>
                         <td className="px-5 py-3">
-                          <TransactionRowActions transaction={tx} categories={categories} />
+                          <TransactionRowActions transaction={tx} categories={categories} existingTags={tags} />
                         </td>
                       </tr>
                     );

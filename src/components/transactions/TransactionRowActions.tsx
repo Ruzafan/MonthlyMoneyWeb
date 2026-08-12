@@ -9,9 +9,11 @@ import type { PlainCategory, PlainTransaction } from "@/lib/queries";
 export function TransactionRowActions({
   transaction,
   categories,
+  existingTags,
 }: {
   transaction: PlainTransaction;
   categories: PlainCategory[];
+  existingTags: string[];
 }) {
   const [editing, setEditing] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -41,7 +43,7 @@ export function TransactionRowActions({
       </button>
       {editing && (
         <Modal title="Editar movimiento" onClose={() => setEditing(false)}>
-          <TransactionForm categories={categories} transaction={transaction} onDone={() => setEditing(false)} />
+          <TransactionForm categories={categories} existingTags={existingTags} transaction={transaction} onDone={() => setEditing(false)} />
         </Modal>
       )}
     </div>

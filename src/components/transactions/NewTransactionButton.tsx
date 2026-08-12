@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { Modal, TransactionForm } from "./TransactionForm";
 import type { PlainCategory } from "@/lib/queries";
 
-export function NewTransactionButton({ categories }: { categories: PlainCategory[] }) {
+export function NewTransactionButton({ categories, existingTags }: { categories: PlainCategory[]; existingTags: string[] }) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -17,7 +17,7 @@ export function NewTransactionButton({ categories }: { categories: PlainCategory
       </Button>
       {open && (
         <Modal title="Nuevo movimiento" onClose={() => setOpen(false)}>
-          <TransactionForm categories={categories} onDone={() => setOpen(false)} />
+          <TransactionForm categories={categories} existingTags={existingTags} onDone={() => setOpen(false)} />
         </Modal>
       )}
     </>

@@ -2,10 +2,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { auth } from "@/auth";
 import { NewTransactionButton } from "@/components/transactions/NewTransactionButton";
-import type { PlainCategory } from "@/lib/queries";
+import { getAllTags, type PlainCategory } from "@/lib/queries";
 
 export async function Header({ title, subtitle, categories }: { title: string; subtitle?: string; categories: PlainCategory[] }) {
-  const session = await auth();
+  const [session, existingTags] = await Promise.all([auth(), getAllTags()]);
 
   return (
     <header className="flex flex-wrap items-center justify-between gap-4 border-b border-border bg-surface px-6 py-5">
@@ -14,7 +14,7 @@ export async function Header({ title, subtitle, categories }: { title: string; s
         {subtitle && <p className="mt-0.5 text-sm text-muted">{subtitle}</p>}
       </div>
       <div className="flex items-center gap-3">
-        <NewTransactionButton categories={categories} />
+        <NewTransactionButton categories={categories} existingTags={existingTags} />
         {session?.user && (
           <Link
             href="/perfil"

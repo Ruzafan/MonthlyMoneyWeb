@@ -1,11 +1,12 @@
 import { z } from "zod";
+import { normalizeTags } from "@/lib/tags";
 
 export const transactionSchema = z.object({
   type: z.enum(["expense", "income"]),
   amount: z.coerce.number().positive("El importe debe ser mayor que 0"),
   date: z.coerce.date(),
   categoryId: z.string().min(1, "Selecciona una categoría"),
-  tags: z.array(z.string().trim().min(1)).default([]),
+  tags: z.array(z.string().trim().min(1)).default([]).transform(normalizeTags),
   description: z.string().trim().optional(),
 });
 

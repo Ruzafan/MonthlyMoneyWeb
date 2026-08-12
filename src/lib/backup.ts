@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { normalizeTags } from "@/lib/tags";
 
 export const BACKUP_VERSION = 1;
 
@@ -15,7 +16,7 @@ export const backupTransactionSchema = z.object({
   date: z.string().min(1),
   categoryName: z.string().min(1),
   categoryType: z.enum(["expense", "income"]),
-  tags: z.array(z.string()).default([]),
+  tags: z.array(z.string()).default([]).transform(normalizeTags),
   description: z.string().optional(),
 });
 
