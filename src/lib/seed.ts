@@ -33,5 +33,16 @@ export async function ensureUserInitialized(userId: string) {
     return;
   }
 
-  await Category.insertMany(DEFAULT_CATEGORIES.map((c) => ({ ...c, userId })));
+  // Upsert one by one (relying on the unique userId+name+type index) instead of
+  // insertMany, so concurrent requests racing on the "no categories yet" check
+  // above can't each insert a full duplicate set.
+  await Promise.all(
+    DEFAULT_CATEGORIES.map((c) =>
+      Category.updateOne(
+        { userId, name: c.name, type: c.type },
+        { $setOnInsert: { ...c, userId } },
+        { upsert: true }
+      )
+    )
+  );
 }

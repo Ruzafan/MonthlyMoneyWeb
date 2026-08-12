@@ -11,6 +11,8 @@ const categorySchema = new Schema(
   { timestamps: true }
 );
 
+categorySchema.index({ userId: 1, name: 1, type: 1 }, { unique: true });
+
 export type CategoryDoc = InferSchemaType<typeof categorySchema> & { _id: string };
 
 export const Category = models.Category || model("Category", categorySchema);
