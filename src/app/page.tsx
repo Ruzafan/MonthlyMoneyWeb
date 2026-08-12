@@ -15,8 +15,6 @@ export default async function DashboardPage() {
   const monthly = summarizeByMonth(transactions);
   const overall = overallSavings(transactions);
   const months = monthly.map((m) => m.month);
-  const currentMonth = new Date().toISOString().slice(0, 7);
-  const currentMonthTx = transactions.filter((t) => t.date.slice(0, 7) === currentMonth);
 
   return (
     <>
@@ -31,7 +29,7 @@ export default async function DashboardPage() {
 
         <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
           <CategoryBreakdown transactions={transactions} categories={categories} months={months} />
-          <BudgetProgress currentMonthTx={currentMonthTx} categories={categories} />
+          <BudgetProgress transactions={transactions} categories={categories} months={months} />
         </div>
       </main>
     </>

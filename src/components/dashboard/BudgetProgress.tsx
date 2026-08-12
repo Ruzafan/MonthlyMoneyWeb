@@ -1,13 +1,34 @@
+"use client";
+
+import { useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
+import { Select } from "@/components/ui/Input";
 import { totalByCategory, type Tx } from "@/lib/aggregations";
 import type { PlainCategory } from "@/lib/queries";
 import clsx from "clsx";
 
 const currency = new Intl.NumberFormat("es-ES", { style: "currency", currency: "EUR" });
 
-export function BudgetProgress({ currentMonthTx, categories }: { currentMonthTx: Tx[]; categories: PlainCategory[] }) {
+function currentMonthKey() {
+  return new Date().toISOString().slice(0, 7);
+}
+
+export function BudgetProgress({
+  transactions,
+  categories,
+  months,
+}: {
+  transactions: Tx[];
+  categories: PlainCategory[];
+  months: string[];
+}) {
+  const defaultMonth = months.includes(currentMonthKey()) ? currentMonthKey() : (months.at(-1) ?? currentMonthKey());
+  const [month, setMonth] = useState(defaultMonth);
+
   const withBudget = categories.filter((c) => c.type === "expense" && c.budgetLimit);
-  const totals = new Map(totalByCategory(currentMonthTx, "expense").map((t) => [t.categoryId, t.total]));
+
+  const monthTx = useMemo(() => transactions.filter((t) => t.date.slice(0, 7) === month), [transactions, month]);
+  const totals = new Map(totalByCategory(monthTx, "expense").map((t) => [t.categoryId, t.total]));
 
   if (withBudget.length === 0) {
     return (
@@ -24,8 +45,18 @@ export function BudgetProgress({ currentMonthTx, categories }: { currentMonthTx:
 
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Presupuestos del mes</CardTitle>
+        {months.length > 0 && (
+          <Select value={month} onChange={(e) => setMonth(e.target.value)} className="w-40">
+            {months.includes(month) ? null : <option value={month}>{formatMonth(month)}</option>}
+            {months.map((m) => (
+              <option key={m} value={m}>
+                {formatMonth(m)}
+              </option>
+            ))}
+          </Select>
+        )}
       </CardHeader>
       <CardContent className="space-y-4 pt-2">
         {withBudget.map((c) => {
@@ -56,4 +87,8 @@ export function BudgetProgress({ currentMonthTx, categories }: { currentMonthTx:
       </CardContent>
     </Card>
   );
+}
+
+function formatMonth(month: string) {
+  return new Intl.DateTimeFormat("es-ES", { month: "long", year: "numeric" }).format(new Date(`${month}-01`));
 }
